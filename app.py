@@ -169,6 +169,9 @@ elif page == "Analytics":
     st.subheader("Average Days in Care by Status")
     st.write(dogs.groupby("Status")["Days in Care"].mean())
 
+elif page == "Matchmaking Dashboard":
+    matchmaking_dashboard(adopters_df, dogs_df)
+
 def matchmaking_dashboard(adopters_df, dogs_df):
     st.title("Matchmaking Dashboard")
 
