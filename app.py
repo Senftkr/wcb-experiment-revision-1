@@ -3,29 +3,19 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
+from matching.priority import build_compatibility_matrix, build_priority_table
+
 st.set_page_config(page_title="WCB Experiment Revision 1", layout="wide")
 
 # -----------------------------
 # 1. LOAD DATA
 # -----------------------------
-@st.cache_data
-def load_data():
-    dogs = pd.read_excel("wcb dogs.xlsx", sheet_name="Sheet1")
+adopters_df = pd.read_excel("data/WCB Adopters April 2026.xlsx")
+dogs_df = pd.read_excel("data/wcb dogs.xlsx")
 
-    # Try loading adopter files if present
-    try:
-        apps = pd.read_excel("New WCBR Adoption Apps Status.xlsx")
-    except:
-        apps = pd.DataFrame()
-
-    try:
-        meets = pd.read_excel("New Approved App Meet & Greet.xlsx")
-    except:
-        meets = pd.DataFrame()
-
-    return dogs, apps, meets
-
-dogs, apps, meets = load_data()
+adopters_df["App Submitted Date"] = pd.to_datetime(
+    adopters_df["App Submitted Date"], errors="coerce"
+)
 
 # -----------------------------
 # 2. CLEANING FUNCTIONS
@@ -178,3 +168,24 @@ elif page == "Analytics":
 
     st.subheader("Average Days in Care by Status")
     st.write(dogs.groupby("Status")["Days in Care"].mean())
+
+def matchmaking_dashboard(adopters_df, dogs_df):
+    st.title("Matchmaking Dashboard")
+
+    st.markdown("""
+    This dashboard automatically matches adopters to dogs using a simple rule-based 
+    compatibility score, then ranks adopters for each dog by oldest application date 
+    to determine FIL (First in Line), NIL (Next in Line), and TIL (Third in Line).
+    """)
+
+    min_score = st.slider("Minimum compatibility score", 0, 100, 60, 5)
+
+    compat_df = build_compatibility_matrix(adopters_df, dogs_df)
+
+    st.subheader("Compatibility Matrix")
+    st.dataframe(compat_df, use_container_width=True)
+
+    priority_df = build_priority_table(compat_df, min_score=min_score)
+
+    st.subheader("FIL / NIL / TIL Rankings")
+    st.dataframe(priority_df, use_container_width=True)
