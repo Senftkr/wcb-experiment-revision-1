@@ -57,17 +57,17 @@ def parse_date(value):
         return None
 
 # Apply cleaning
-dogs["Status"] = dogs["Status"].apply(clean_status)
-dogs["Good with Cats"] = dogs["Good with Cats"].apply(clean_yes_no)
-dogs["Good with Dogs"] = dogs["Good with Dogs"].apply(clean_yes_no)
-dogs["Good with Kids"] = dogs["Good with Kids"].apply(clean_yes_no)
-dogs["Intake Date"] = dogs["Intake Date"].apply(parse_date)
+dogs_df["Status"] = dogs_df["Status"].apply(clean_status)
+dogs_df["Good with Cats"] = dogs_df["Good with Cats"].apply(clean_yes_no)
+dogs_df["Good with Dogs"] = dogs_df["Good with Dogs"].apply(clean_yes_no)
+dogs_df["Good with Kids"] = dogs_df["Good with Kids"].apply(clean_yes_no)
+dogs_df["Intake Date"] = dogs_df["Intake Date"].apply(parse_date)
 
 # Create DogID
-dogs["DogID"] = dogs.index + 1
+dogs_df["DogID"] = dogs_df.index + 1
 
 # Days in care
-dogs["Days in Care"] = (datetime.now() - dogs["Intake Date"]).dt.days
+dogs_df["Days in Care"] = (datetime.now() - dogs_df["Intake Date"]).dt.days
 
 # -----------------------------
 # 3. SIDEBAR NAVIGATION
@@ -79,27 +79,28 @@ page = st.sidebar.radio(
 )
 
 # -----------------------------
+# -----------------------------
 # 4. DASHBOARD OVERVIEW
 # -----------------------------
 if page == "Dashboard Overview":
     st.title("📊 WCB Experiment Revision 1 — Overview")
 
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Dogs", len(dogs))
-    col2.metric("Available", sum(dogs["Status"] == "Available"))
-    col3.metric("On Hold – Medical", sum(dogs["Status"] == "On Hold – Medical"))
-    col4.metric("On Hold – Behavior", sum(dogs["Status"] == "On Hold – Behavior"))
+    col1.metric("Total Dogs", len(dogs_df))
+    col2.metric("Available", sum(dogs_df["Status"] == "Available"))
+    col3.metric("On Hold – Medical", sum(dogs_df["Status"] == "On Hold – Medical"))
+    col4.metric("On Hold – Behavior", sum(dogs_df["Status"] == "On Hold – Behavior"))
 
     st.subheader("Dogs by Status")
-    st.bar_chart(dogs["Status"].value_counts())
+    st.bar_chart(dogs_df["Status"].value_counts())
 
     st.subheader("Dogs by Age")
-    st.bar_chart(dogs["Age"].value_counts())
+    st.bar_chart(dogs_df["Age"].value_counts())
 
     st.subheader("Days in Care Distribution")
-    st.line_chart(dogs["Days in Care"])
-
+    st.line_chart(dogs_df["Days in Care"])
 # -----------------------------
+
 # 5. DOG DIRECTORY
 # -----------------------------
 elif page == "Dog Directory":
@@ -107,11 +108,11 @@ elif page == "Dog Directory":
 
     status_filter = st.multiselect(
         "Filter by Status",
-        options=dogs["Status"].unique(),
-        default=dogs["Status"].unique()
+        options=dogs_df["Status"].unique(),
+        default=dogs_df["Status"].unique()
     )
 
-    filtered = dogs[dogs["Status"].isin(status_filter)]
+    filtered = dogs_df[dogs_df["Status"].isin(status_filter)]
 
     for _, row in filtered.iterrows():
         with st.expander(f"{row['Name']} — {row['Status']}"):
@@ -123,17 +124,16 @@ elif page == "Dog Directory":
             st.write(f"**Good with Cats:** {row['Good with Cats']}")
             st.write(f"**Days in Care:** {row['Days in Care']}")
             st.write(f"**Notes:** {row['Jansen/Angela/Foster Comments']}")
-
 # -----------------------------
 # 6. DOG PROFILES
-# -----------------------------
+
 elif page == "Dog Profiles":
     st.title("📘 Dog Profiles")
 
-    dog_names = dogs["Name"].unique()
+    dog_names = dogs_df["Name"].unique()
     selected = st.selectbox("Select a Dog", dog_names)
 
-    d = dogs[dogs["Name"] == selected].iloc[0]
+    d = dogs_df[dogs_df["Name"] == selected].iloc[0]
 
     st.header(d["Name"])
     st.write(f"**Status:** {d['Status']}")
@@ -148,6 +148,7 @@ elif page == "Dog Profiles":
     st.write("### Notes")
     st.write(d["Jansen/Angela/Foster Comments"])
 
+
 # -----------------------------
 # 7. ANALYTICS
 # -----------------------------
@@ -155,19 +156,20 @@ elif page == "Analytics":
     st.title("📈 Analytics & Insights")
 
     st.subheader("Good with Kids")
-    st.bar_chart(dogs["Good with Kids"].value_counts())
+    st.bar_chart(dogs_df["Good with Kids"].value_counts())
 
     st.subheader("Good with Dogs")
-    st.bar_chart(dogs["Good with Dogs"].value_counts())
+    st.bar_chart(dogs_df["Good with Dogs"].value_counts())
 
     st.subheader("Good with Cats")
-    st.bar_chart(dogs["Good with Cats"].value_counts())
+    st.bar_chart(dogs_df["Good with Cats"].value_counts())
 
     st.subheader("Status Breakdown")
-    st.bar_chart(dogs["Status"].value_counts())
+    st.bar_chart(dogs_df["Status"].value_counts())
 
     st.subheader("Average Days in Care by Status")
-    st.write(dogs.groupby("Status")["Days in Care"].mean())
+    st.write(dogs_df.groupby("Status")["Days in Care"].mean())
+
 
 elif page == "Matchmaking Dashboard":
     matchmaking_dashboard(adopters_df, dogs_df)
