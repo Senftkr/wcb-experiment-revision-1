@@ -1,4 +1,3 @@
-# updated to force redeploy
 import pandas as pd
 from .scoring import compute_simple_score
 
@@ -15,6 +14,9 @@ def build_compatibility_matrix(adopters_df, dogs_df):
                 "Adopter_Name": adopter["Adopter's Name"],
                 "Dog_Name": dog["Name"],
                 "Score": score,
+                "Application_Date": adopter.get("App Submitted Date")
             })
 
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    df["Application_Date"] = pd.to_datetime(df["Application_Date"], errors="coerce")
+    return df
