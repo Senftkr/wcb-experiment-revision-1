@@ -20,62 +20,63 @@ def compute_simple_score(adopter, dog):
     # Kids
     kids_clean = kids.replace("none", "").replace("n/a", "").strip()
 
+    if kids_clean != "":
         if "yes" in good_kids:
-         score += 20
+            score += 20
         elif "no" in good_kids:
-         score -= 30
+            score -= 30
     else:
         if "no" in good_kids:
-         score += 10
+            score += 10
 
     # Dogs
     if dogs_owned.strip() != "" and "no" not in dogs_owned:
         if "yes" in good_dogs or "slow intro" in good_dogs:
-         score += 20
+            score += 20
         elif "no" in good_dogs:
-         score -= 25
+            score -= 25
     else:
         if "only" in str(dog.get("Special Needs", "")).lower():
-         score += 15
+            score += 15
 
     # Cats
     if "yes" in cats_owned:
         if "yes" in good_cats:
-         score += 20
+            score += 20
         elif "no" in good_cats:
-         score -= 30
+            score -= 30
 
     # Breed preferences
     if "no mix" in prefs or "no mix" in notes:
         if "mix" in breed:
-         score -= 30
+            score -= 30
 
     if "puppy" in prefs or "puppy" in notes:
         if age is not None and age <= 1.5:
-         score += 20
+            score += 20
 
     if "under 5" in prefs:
         if age is not None and age <= 5:
-         score += 15
+            score += 15
 
     if "male" in prefs:
         if str(dog.get("Sex", "")).lower() == "male":
-         score += 10
+            score += 10
 
     if "female" in prefs:
         if str(dog.get("Sex", "")).lower() == "female":
-         score += 10
+            score += 10
 
     if "dock" in prefs:
         if "dock" in tail:
-         score += 10
+            score += 10
 
     # Special needs
     special = str(dog.get("Special Needs", "")).lower()
     if special not in ["", "none", "nan"]:
         if "boxer exp" in prefs or "boxer exp" in notes:
-         score += 10
+            score += 10
         else:
-         score -= 10
+            score -= 10
 
     return max(0, min(100, score))
