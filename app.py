@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime
 
 from matching.scoring import compute_simple_score
-from matching.priority import build_compatibility_matrix
+from matching.priority import build_compatibility_matrix, build_priority_table
 
 st.set_page_config(page_title="WCB Experiment Revision 1", layout="wide")
 
