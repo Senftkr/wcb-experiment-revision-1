@@ -75,8 +75,15 @@ dogs_df["Days in Care"] = (datetime.now() - dogs_df["Intake Date"]).dt.days
 st.sidebar.title("WCB Experiment Revision 1")
 page = st.sidebar.radio(
     "Navigate",
-    ["Dashboard Overview", "Dog Directory", "Dog Profiles", "Analytics"]
+    [
+        "Dashboard Overview",
+        "Dog Directory",
+        "Dog Profiles",
+        "Analytics",
+        "Matchmaking Dashboard"
+    ]
 )
+
 
 # -----------------------------
 # -----------------------------
