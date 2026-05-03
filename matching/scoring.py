@@ -18,7 +18,8 @@ def compute_simple_score(adopter, dog):
     age = dog.get("Age", None)
 
     # Kids
-    if "no" not in kids and kids.strip() != "":
+    kids_clean = kids.replace("none", "").replace("n/a", "").strip()
+
         if "yes" in good_kids:
             score += 20
         elif "no" in good_kids:
