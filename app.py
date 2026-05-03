@@ -64,11 +64,6 @@ dogs_df["Good with Dogs"] = dogs_df["Good with Dogs"].apply(clean_yes_no)
 dogs_df["Good with Kids"] = dogs_df["Good with Kids"].apply(clean_yes_no)
 dogs_df["Intake Date"] = dogs_df["Intake Date"].apply(parse_date)
 
-# Clean adopter fields
-adopters_df["Good with Kids"] = adopters_df["Good with Kids"].apply(clean_yes_no)
-adopters_df["Good with Dogs"] = adopters_df["Good with Dogs"].apply(clean_yes_no)
-adopters_df["Good with Cats"] = adopters_df["Good with Cats"].apply(clean_yes_no)
-
 # Create DogID
 dogs_df["DogID"] = dogs_df.index + 1
 
