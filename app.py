@@ -12,6 +12,7 @@ st.set_page_config(page_title="WCB Experiment Revision 1", layout="wide")
 # -----------------------------
 adopters_df = pd.read_excel("data/WCB Adopters April 2026.xlsx")
 dogs_df = pd.read_excel("data/wcb dogs.xlsx")
+dogs_df["Age"] = pd.to_numeric(dogs_df["Age"], errors="coerce")
 
 adopters_df["App Submitted Date"] = pd.to_datetime(
     adopters_df["App Submitted Date"], errors="coerce"
@@ -63,11 +64,38 @@ dogs_df["Good with Dogs"] = dogs_df["Good with Dogs"].apply(clean_yes_no)
 dogs_df["Good with Kids"] = dogs_df["Good with Kids"].apply(clean_yes_no)
 dogs_df["Intake Date"] = dogs_df["Intake Date"].apply(parse_date)
 
+# Clean adopter fields
+adopters_df["Good with Kids"] = adopters_df["Good with Kids"].apply(clean_yes_no)
+adopters_df["Good with Dogs"] = adopters_df["Good with Dogs"].apply(clean_yes_no)
+adopters_df["Good with Cats"] = adopters_df["Good with Cats"].apply(clean_yes_no)
+
 # Create DogID
 dogs_df["DogID"] = dogs_df.index + 1
 
 # Days in care
 dogs_df["Days in Care"] = (datetime.now() - dogs_df["Intake Date"]).dt.days
+
+def matchmaking_dashboard(adopters_df, dogs_df):
+    st.title("Matchmaking Dashboard")
+
+    st.markdown("""
+    This dashboard automatically matches adopters to dogs using a simple rule-based 
+    compatibility score, then ranks adopters for each dog by oldest application date 
+    to determine FIL (First in Line), NIL (Next in Line), and TIL (Third in Line).
+    """)
+
+    min_score = st.slider("Minimum compatibility score", 0, 100, 60, 5)
+
+    compat_df = build_compatibility_matrix(adopters_df, dogs_df)
+
+    st.subheader("Compatibility Matrix")
+    st.dataframe(compat_df, use_container_width=True)
+
+    priority_df = build_priority_table(compat_df, min_score=min_score)
+
+    st.subheader("FIL / NIL / TIL Rankings")
+    st.dataframe(priority_df, use_container_width=True)
+
 
 # -----------------------------
 # 3. SIDEBAR NAVIGATION
@@ -104,8 +132,12 @@ if page == "Dashboard Overview":
     st.subheader("Dogs by Age")
     st.bar_chart(dogs_df["Age"].value_counts())
 
+
     st.subheader("Days in Care Distribution")
     st.line_chart(dogs_df["Days in Care"])
+
+
+
 # -----------------------------
 
 # 5. DOG DIRECTORY
@@ -181,23 +213,3 @@ elif page == "Analytics":
 elif page == "Matchmaking Dashboard":
     matchmaking_dashboard(adopters_df, dogs_df)
 
-def matchmaking_dashboard(adopters_df, dogs_df):
-    st.title("Matchmaking Dashboard")
-
-    st.markdown("""
-    This dashboard automatically matches adopters to dogs using a simple rule-based 
-    compatibility score, then ranks adopters for each dog by oldest application date 
-    to determine FIL (First in Line), NIL (Next in Line), and TIL (Third in Line).
-    """)
-
-    min_score = st.slider("Minimum compatibility score", 0, 100, 60, 5)
-
-    compat_df = build_compatibility_matrix(adopters_df, dogs_df)
-
-    st.subheader("Compatibility Matrix")
-    st.dataframe(compat_df, use_container_width=True)
-
-    priority_df = build_priority_table(compat_df, min_score=min_score)
-
-    st.subheader("FIL / NIL / TIL Rankings")
-    st.dataframe(priority_df, use_container_width=True)
